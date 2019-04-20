@@ -1,5 +1,5 @@
 #!/bin/bash
-cd $PWD/baleine/Bridges
+cd $PATH_MANIFEST/bridges
 
 for eachfile in ./*.manifest
 do 

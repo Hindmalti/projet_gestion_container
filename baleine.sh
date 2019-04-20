@@ -7,8 +7,9 @@
 #script qui va traiter ces cas, on garde les fichiers courts mais simples
 
 
-export PATH_BALEINE=/var/lib/baleine
-export PATH_MANIFEST=$PATH_BALEINE/manifest
+export PATH_BALEINE="/var/lib/baleine"
+export PATH_MANIFEST="$PATH_BALEINE/manifest"
+
 
 if [ $# -lt 1 ]; then
     printf "Baleine est un outil simple de gestion de conteneur.\n"
@@ -16,7 +17,7 @@ if [ $# -lt 1 ]; then
     printf "\t \t baleine <commande> [arguments]\n"
     printf "Les commandes sont :\n \n"
     printf "\t \t %-10s %-10s \n" "container"  "Lance ou stoppe un contenneur."
-    printf "\t \t %-10s %-10s \n" "network" "Créée ou supprime des interfaces réseau."
+    printf "\t \t %-10s %-10s \n" "bridge" "Créée ou supprime des commutateurs linux virtuels."
     printf "\t \t %-10s %-10s \n \n" "image" "Créer ou supprime des images de contenneurs."
     printf "Utilisez baleine <commande> help pour plus d'informations à propos d'une commande.\n"
 fi
@@ -28,9 +29,6 @@ case "$1" in
         #autrement dit, ./baleine.sh container create apellera le script container.sh avec les arguments $1=container et $2=create
         bash container.sh "$@"
     ;;
-    "network")
-        bash network.sh "$@"
-    ;;
     "image")
         bash image.sh "$@"
     ;;
@@ -39,5 +37,8 @@ case "$1" in
     ;;
      "help")
         bash help.sh "$@"
+    ;;
+    "test")
+        bash test.sh "$@"
     ;;
 esac

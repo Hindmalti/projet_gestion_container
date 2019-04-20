@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $PWD/baleine/Images
+cd $PATH_MANIFEST/images
 
 for eachfile in ./*.manifest
 do 

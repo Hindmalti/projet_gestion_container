@@ -13,7 +13,7 @@ PROGRAM=$7;
 
 
 #On veut récupérer le chemin de l'image
-PATH_IMAGE= grep chemin $PATH_MANIFEST/$NOM_IMAGE.manifest | cut -d':' -f2
+PATH_IMAGE= grep chemin $PATH_MANIFEST/images/$NOM_IMAGE.manifest | cut -d':' -f2
 
 #on fait une copie dans /var/BaleineImages pour mount depuis le conteneur
 if [[ ! -d "$PATH_BALEINE/containers/$NOM_CONTAINER" ]]; then
@@ -47,6 +47,15 @@ echo "nom_container:$NOM_CONTAINER" >> $FILE #nom de son image
 echo "nom_image:$NOM_IMAGE" >> $FILE #nom de son image
 echo "pid:$PID" >> $FILE #Son PID
 echo "nom_bridge:$NOM_BRIDGE" >> $FILE #SON BRIDGE
+
+#temps d'exécution du container ?
+# start_time=`date +%s`
+# <command-to-execute>
+# end_time=`date +%s`
+# echo execution time was `expr $end_time - $start_time` s. 
+# ou 
+#start_time=`date +%s`
+#<command-to-execute> && echo run time is $(expr `date +%s` - $start_time) s
 
 if [[ ! -d "$PATH_MANIFEST/containers" ]]; then
     mkdir -p $PATH_MANIFEST/containers

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd $PWD/baleine/Containers
+cd $PATH_MANIFEST/containers
 
 for eachfile in ./*.manifest
 do 

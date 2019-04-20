@@ -13,5 +13,11 @@ case $2 in
     "stop")
         bash stop_container.sh "$@"
         ;;
+    "remove")
+        bash remove_container.sh "$@"
+        ;;
+    "restart")
+        bash restart_container.sh "$@"
+        ;;    
  
 esac
