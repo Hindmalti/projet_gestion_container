@@ -28,6 +28,10 @@ cp $PATH_IMAGE $PATH_BALEINE/containers/$NOM_CONTAINER/$NOM_IMAGE
 echo "je vais mount"
 mount -t ext4 -o loop $PATH_BALEINE/containers/$NOM_CONTAINER/$NOM_IMAGE /mnt/baleine/$NOM_CONTAINER
 
+#On renseigne le fichier fstab du conteneur
+echo "proc /proc proc defaults 0 0" >> /mnt/$NOM_IMAGE/etc/fstab
+echo "$PROGRAM" >> /mnt/$NOM_IMAGE/etc/rc.local
+
 nohup unshare -p -f -m -n -u chroot /mnt/baleine/$NOM_CONTAINER $PROGRAM -c "mount /proc" &
 PID=$!
 echo "j'ai finis le unshare-nohup"
@@ -62,6 +66,8 @@ if [[ ! -d "$PATH_MANIFEST/containers" ]]; then
 fi
 
 mv $NOM_CONTAINER.manifest $PATH_MANIFEST/containers/$NOM_CONTAINER.manifest
+
+
 #TODO : son interface réseau (bridge) - taille mémoire / limite mémoire
 
 #création de son interface réseau

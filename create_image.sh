@@ -1,67 +1,64 @@
 #!/bin/bash
 
-NOM_IMAGE=$3; # L'utilisateur devra spécifier le nom de l'image
-SIZE=$4; #L'utilisateur devra spécifier la taille du disque qu'il souhaite allouer 
-REPERTOIRE=$5; #L'utilisateur devra spécifier le chemin ou il mettra l'image
 
-#ici block size vaut 1024 (on alloue par 1 méga) 
-# La commande resseblera à : ./baleine.sh image create nom 5120 
+while getopts i:s:r: o; do
+    case $o in
+        (i) NOM_IMAGE=$OPTARG;;
+        (s) SIZE=$OPTARG;;
+        (r) REPERTOIRE=$OPTARG;;
+        (p) PROXY=$OPTARG;;
+    esac
+done
 
-
-#condition de bordure pour SIZE
-if [ "$SIZE" -lt 0 ] || [ "$SIZE" -gt 10240 ] || [ -z $SIZE ]; then #vérifie que l'argument size est bien donné, qu'il n'est pas supérieur ou inférieur à 0 / 10240
-    echo "Mauvaise valeur, on met par défaut 10 Giga ! "
-    $SIZE=10240
+#Block size vaut 1024 (allocution par 1 MB)
+if [ "$SIZE" == "" ] || [ "$SIZE" -lt 0 ] || [ "$SIZE" -gt 10240 ]; then
+    SIZE=10240
 fi
 
+echo "La size est de $SIZE"
 mkdir -p $PATH_BALEINE/images
 
-#condition pour le répertoire
-if [[ -z $REPERTOIRE ]]; then #si l'utilisateur oublie de donner le path on utilise celui-ci par défaut 
-  echo "Il n'y pas eu d'argements donnés pour répertoire, je fais moi même le chemin" 
-  REPERTOIRE=$PATH_BALEINE/images
+if [[ -z $REPERTOIRE ]]; then
+    REPERTOIRE=$PATH_BALEINE/images
 fi
 
-#vérification que l'utilisateur donne bien un nom à l'image
-if [[ -z "$NOM_IMAGE" ]]; then 
-  echo "Il faut donner le nom de l'image ! Relancez la commande avec les bons arguments."
-  exit
+if [[ -z "$NOM_IMAGE" ]]; then
+    echo "Il faut donner le nom de l'image ! Relancez la commande avec les bons arguments."
+    exit
 fi
-# #génération de nombres aléatoires afin de créer à chaque fois un fichier avec un nombre unique (éviter qu'un soit écraser)
-# NUMBER=$(cat /dev/urandom | tr -dc '0-9' | fold -w 256 | head -n 1 | sed -e 's/^0*//' | head --bytes 3)
-# if [ "$NUMBER" == "" ]; then
-#   NUMBER=0
-# fi
-echo "Le repertoire est $REPERTOIRE"
+
 #Crée image
-FILE=$NOM_IMAGE.manifest
-echo "Je vais commencer à allouer !"
-dd if=/dev/zero of=$REPERTOIRE/$NOM_IMAGE bs=1024k count=$SIZE 
-touch  FILE
-echo "nom image:$NOM_IMAGE" >> FILE #nom de l'image
-echo "taille:$SIZE">> FILE #taille de l'image
-echo "chemin:$REPERTOIRE">> FILE #son chemin
+
+MANIFEST=$NOM_IMAGE.manifest
+
+dd if=/dev/zero of=$REPERTOIRE/$NOM_IMAGE bs=1024k count=$SIZE
+
+touch  $MANIFEST
+
+echo "nom image:$NOM_IMAGE" >> $MANIFEST
+echo "taille:$SIZE">> $MANIFEST
+echo "chemin:$REPERTOIRE">> $MANIFEST
 
 
 
-if [[ ! -d "$PATH_MANIFEST/images" ]]; then 
-  mkdir -p $PATH_MANIFEST/images  #&& mv $NOM_IMAGE.$NUMBER.manifest $REPERTOIRE/images
+if [[ ! -d "$PATH_MANIFEST/images" ]]; then
+    mkdir -p $PATH_MANIFEST/images
 fi
+
 mv $NOM_IMAGE.manifest $PATH_MANIFEST/images
 
 
+if [[ -z "$FORMAT" ]]; then
+    FORMAT=ext4
+fi
 
-#création du système de fichiers au format "ext4"
-mkfs.ext4 $REPERTOIRE/images/$NOM_IMAGE
+mkfs.ext4 $REPERTOIRE/$NOM_IMAGE
 
-
-
-echo "je vais exporter le proxy"
-export http_proxy=http://proxy.polytech-lille.fr:3128
+if [[ $PROXY != "" ]]; then
+    echo "Export du proxy"
+    export http_proxy=http://proxy.polytech-lille.fr:3128
+fi
 
 #Création de l'arborescence Debian avec debootstrap
 echo "Je vais faire le debootstrap"
 debootstrap --include=apache2,vim,nano  stable /mnt/baleine/$NOM_IMAGE
-
-#On renseigne le fichier fstab du conteneur
-echo "proc /proc proc defaults 0 0" >> /mnt/$NOM_IMAGE/etc/fstab

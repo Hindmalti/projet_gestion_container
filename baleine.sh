@@ -30,7 +30,7 @@ case "$1" in
         bash container.sh "$@"
     ;;
     "image")
-        bash image.sh "$@"
+        bash image.sh "${@:2}"
     ;;
     "bridge")
         bash bridge.sh "$@"

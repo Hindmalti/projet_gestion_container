@@ -18,6 +18,9 @@ case $2 in
         ;;
     "restart")
         bash restart_container.sh "$@"
-        ;;    
+        ;;  
+    "exec")
+        bash exec_container.sh "$@"
+        ;;        
  
 esac
