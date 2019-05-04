@@ -1,4 +1,4 @@
-#!/bin/bash
+  #!/bin/bash
 
 
 while getopts i:s:r: o; do
@@ -15,7 +15,7 @@ if [ "$SIZE" == "" ] || [ "$SIZE" -lt 0 ] || [ "$SIZE" -gt 10240 ]; then
     SIZE=10240
 fi
 
-echo "La size est de $SIZE"
+echo "Le size est de $SIZE"
 mkdir -p $PATH_BALEINE/images
 
 if [[ -z $REPERTOIRE ]]; then
@@ -33,9 +33,7 @@ MANIFEST=$NOM_IMAGE.manifest
 
 dd if=/dev/zero of=$REPERTOIRE/$NOM_IMAGE bs=1024k count=$SIZE
 
-touch  $MANIFEST
-
-echo "nom image:$NOM_IMAGE" >> $MANIFEST
+echo "nom_image:$NOM_IMAGE" >> $MANIFEST
 echo "taille:$SIZE">> $MANIFEST
 echo "chemin:$REPERTOIRE">> $MANIFEST
 
@@ -61,4 +59,8 @@ fi
 
 #Création de l'arborescence Debian avec debootstrap
 echo "Je vais faire le debootstrap"
+mkdir -p /mnt/baleine/$NOM_IMAGE
+mount -t ext4 -o loop $REPERTOIRE/$NOM_IMAGE /mnt/baleine/$NOM_IMAGE 
 debootstrap --include=apache2,vim,nano  stable /mnt/baleine/$NOM_IMAGE
+umount /mnt/baleine/$NOM_IMAGE
+rm -rf /mnt/baleine/$NOM_IMAGE

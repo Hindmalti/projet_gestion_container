@@ -27,18 +27,18 @@ case "$1" in
         #Si on a apelé ./baleine.sh container create par exemple, on va apeller le script container.sh qui va traiter les
         #opérations sur les containers, et $@ permet de lui passer tous les arguments qu'on a passé à baleine.sh
         #autrement dit, ./baleine.sh container create apellera le script container.sh avec les arguments $1=container et $2=create
-        bash container.sh "$@"
+        bash container.sh "${@:2}"
     ;;
     "image")
         bash image.sh "${@:2}"
     ;;
     "bridge")
-        bash bridge.sh "$@"
+        bash bridge.sh "${@:2}"
     ;;
      "help")
-        bash help.sh "$@"
+        bash help.sh
     ;;
     "test")
-        bash test.sh "$@"
+        bash test.sh "${@:2}"
     ;;
 esac

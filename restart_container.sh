@@ -1,7 +1,10 @@
 #!/bin/bash
-NOM_CONTAINER=$3;
-NOM_IMAGE=$4;
-
+while getopts c:i: o; do
+    case $o in
+        (c) NOM_CONTAINER=$OPTARG;;
+        (i) NOM_IMAGE=$OPTARG;;    
+    esac
+done
 mount -t ext4 -o loop $PATH_BALEINE/containers/$NOM_CONTAINER/$NOM_IMAGE /mnt/baleine/$NOM_CONTAINER
 
 nohup unshare -p -f -m -n -u chroot /mnt/baleine/$NOM_CONTAINER $PROGRAM -c "mount /proc" &

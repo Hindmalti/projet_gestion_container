@@ -1,9 +1,8 @@
 #!/bin/bash
-cd $PATH_MANIFEST/bridges
-
-for eachfile in ./*.manifest
+for eachfile in $PATH_MANIFEST/bridges/*.manifest
 do 
-	echo $eachfile
-	val=$(cat "$eachfile")
-	echo $val
+	NOM_BRIDGE=$(grep nom_bridge $eachfile | cut -d ':' -f2)
+	echo "----------------------"
+	brctl show $NOM_BRIDGE 
+	echo "----------------------"
 done

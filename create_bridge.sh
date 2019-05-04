@@ -1,7 +1,11 @@
 #!/bin/bash
-NOM_BRIDGE=$3;
-ADDR_IPV4=$4;
-
+while getopts b:a: o; do
+    case $o in
+        (b) NOM_BRIDGE=$OPTARG;;
+        (a) ADDR_IPV4=$OPTARG;;
+        
+    esac
+done
 
 
 #condition sur le nbre d'arguments
@@ -11,15 +15,20 @@ if [[ -z "$NOM_BRIDGE" ]]; then
 fi
 #création du bridge
 ip link add $NOM_BRIDGE type bridge
+
+#attribution d'une adresse ip au bridge
 ip a add dev $NOM_BRIDGE $ADDR_IPV4
+
+#demarrage du bridge
 ip link set $NOM_BRIDGE down
 ip link set $NOM_BRIDGE up
-FILE= $NOM_BRIDGE.manifest
-touch  FILE # On crée un fichier contenant les infos du bridge
-echo "$NOM_BRIDGE" >> FILE #nom du bridge
+
+MANIFEST=$NOM_BRIDGE.manifest
+echo "nom_bridge:$NOM_BRIDGE" >> $MANIFEST #nom du bridge
 
 #condition de bordure pour le dossier Bridges
 if [[ ! -d "$PATH_MANIFEST/bridges" ]]; then 
   mkdir -p $PATH_MANIFEST/bridges #&& mv FILE $PATH_MANIFEST/bridges
 fi
-mv FILE $PATH_MANIFEST/bridges
+
+mv $MANIFEST $PATH_MANIFEST/bridges

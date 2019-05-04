@@ -7,14 +7,14 @@ case $1 in
         ;;
     "list")
         #Si on veut lister les images (qu'on a apellé le script ./balaine.sh image list)
-        bash list_images.sh "$@"
+        bash list_images.sh "${@:2}"
         ;;
     "import")
-        bash import_container.sh "$@"
+        bash import_container.sh "${@:2}"
         ;;
     "export")
-        bash export_container.sh "$@"
+        bash export_container.sh "${@:2}"
                ;;
     "remove")
-        bash remove_image.sh "$@"
+        bash remove_image.sh "${@:2}"
 esac

@@ -1,22 +1,9 @@
-#!/bin/bash
+#bash baleine.sh bridge create mybridge 192.168.42.1
+#bash baleine.sh container create -i TEST -c mycontainer -b mybridge -a 192.168.42.2 -p /usr/sbin/apache2
 
-BRIDGES="pont,petitpont"
-ADDRS_IPV4="lala,lulu"
+A="HELLO"
+B=" WORLD"
 
-ARRAY_BRIDGES=()
-ARRAY_IPV4=()
+C="$A$B"
 
-IFS=','
-for b in $BRIDGES; do
-    ARRAY_BRIDGES+=($b)    
-done
-
-for a in $ADDRS_IPV4; do
-    ARRAY_IPV4+=($a)
-done
-
-
-for ((i = 0, j = 0 ; i < ${#ARRAY_BRIDGES[*]} && j < ${#ARRAY_BRIDGES[*]} ; i++, j++ )); do
-    echo "i= ${ARRAY_BRIDGES[i]}"
-    echo "j= ${ARRAY_IPV4[j]}"
-done
+echo $C
