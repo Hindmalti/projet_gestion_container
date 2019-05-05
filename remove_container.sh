@@ -15,3 +15,7 @@ umount /mnt/baleine/$NAME_CONTAINER_TO_REMOVE
 rm -rf /mnt/baleine/$NAME_CONTAINER_TO_REMOVE
 #supprime l'image associé au container (manifest du container)
 rm -rf /var/lib/baleine/containers/$NAME_CONTAINER_TO_REMOVE
+
+#TODO : Supprimer interfaces réseaux
+#TODO : Grep manifeste container, récupère les interfaces
+#TODO : Boucle sur les interfaces, les supprime une à une

@@ -35,7 +35,7 @@ case "$1" in
     "bridge")
         bash bridge.sh "${@:2}"
     ;;
-     "help")
+    "help")
         bash help.sh
     ;;
     "test")

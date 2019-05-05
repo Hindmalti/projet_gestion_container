@@ -13,14 +13,14 @@ while getopts i:c:b:r:a:p: o; do
 done
 
 echo "Creation du container $NOM_CONTAINER basé sur l'image $NOM_IMAGE lancant le programme $PROGRAM connecté au(x) bridge(s) $BRIDGES avec les adresses $ADDRS_IPV4"
-#/usr/local/apache2/bin
 
-#Check existence image, bridge
+#Check existence image
 if [ -z "$PATH_MANIFEST/images/$NOM_IMAGE.manifest" ] || [ -z $NOM_IMAGE ]; then
     echo "Image non existante."
     exit
 fi
 
+#Check existence bridge
 if [ ! -z $NOM_BRIDGE ] || [ -z "$PATH_MANIFEST/bridges/$NOM_BRIDGE.manifest" ]; then
     echo "Bridge non existant."
     exit
@@ -29,18 +29,15 @@ fi
 #On veut récupérer le chemin de l'image
 PATH_IMAGE="$(grep chemin $PATH_MANIFEST/images/$NOM_IMAGE.manifest | cut -d':' -f2)"
 
-echo "PATH_IMAGE: $PATH_IMAGE"
-#on fait une copie dans /var/baleine/images pour mount depuis le conteneur
+#On fait une copie dans /var/baleine/images pour mount depuis le conteneur
 if [[ ! -d "$PATH_BALEINE/containers/$NOM_CONTAINER" ]]; then
     mkdir -p $PATH_BALEINE/containers/$NOM_CONTAINER
 fi
 
-
-#Copie de l'image physique dans le container
-cp -r $PATH_IMAGE/$NOM_IMAGE $PATH_BALEINE/containers/$NOM_CONTAINER/$NOM_IMAGE
+cp $PATH_IMAGE/$NOM_IMAGE $PATH_BALEINE/containers/$NOM_CONTAINER/$NOM_IMAGE
 
 
-#création du du dossier de montage de l'image du container
+#Création du du dossier de montage de l'image du container
 
 if [[ ! -d "/mnt/baleine/$NOM_CONTAINER" ]]; then
     mkdir -p /mnt/baleine/$NOM_CONTAINER
@@ -57,17 +54,20 @@ echo "$PROGRAM" >> /mnt/baleine/$NOM_CONTAINER/etc/rc.local
 #On fait le unshare sur l'image passée en paramètre,
 #nohup unshare -p -f -m -n -u chroot /mnt/baleine/$NOM_CONTAINER "/bin/bash" -c "mount /proc" &
 
-
+nohup unshare -p -f -m -n -u chroot /mnt/baleine/$NOM_CONTAINER /bin/sh -c "mount /proc ; $PROGRAM ; while true ; do sleep 10 ; done" &
 
 PID=$!
-echo "j'ai finis le unshare-nohup"
 
-ps axo ppid,pid | grep "^ *$PID" | sed -e 's/.* //'
-echo $PID
+#Récupère tous les processus fils du unshare (donc ici le programme qu'on lance)
+#ps axo ppid,pid | grep "^ *$PID" | sed -e 's/.* //'
+
+echo "PID Unshare :$PID"
+
+
+#TODO : Gerer les noms des interfaces < x caractères 
 
 FILE=$NOM_CONTAINER.manifest
-touch $FILE #création du fichier
-date=${date}
+date=$(date)
 
 echo "nom_container:$NOM_CONTAINER" >> $FILE #nom de son image
 echo "nom_image:$NOM_IMAGE" >> $FILE #nom de son image
@@ -87,9 +87,7 @@ mv $NOM_CONTAINER.manifest $PATH_MANIFEST/containers/$NOM_CONTAINER.manifest
 
 #AWK pour récupèrer le nombre d'addresses IPV4 données en arguments
 #(https://unix.stackexchange.com/questions/144217/counting-comma-separated-characters-in-a-row)
-
 NOMBRE_INTERFACES="$(echo $ADDRS_IPV4 | awk -F '[,]' '{print NF}')"
-
 NOMBRE_BRIDGES="$(echo $BRIDGES | awk -F '[,]' '{print NF}')"
 
 if [ $NOMBRE_INTERFACES -ne $NOMBRE_BRIDGES ]; then
@@ -97,16 +95,35 @@ if [ $NOMBRE_INTERFACES -ne $NOMBRE_BRIDGES ]; then
     exit 1
 fi
 
+#Creation veth
+#Problématique : Sur Linux, impossible d'avoir des interfaces avec des noms de plus de 16 caractères
+#                Impossible donc de mettre des interfaces du type
+#Solution : On hash le nom du container, on le ramène aux trois premiers digits, puis on ajoute l'index
+
+ARRAY_INTERFACES=()
+
 for i in $(seq 1 $NOMBRE_INTERFACES); do
-    echo "Nom de l'interface : $NOM_CONTAINER$i"
-    ip link add $NOM_CONTAINER$i type veth peer name eth$i
+    #Creation d'un hash du nom du container pour créer les interfaces
+    HASH=$(sha1sum <<< $NOM_CONTAINER)
+    #On prend les trois premiers caractères du hash, succédé de l'index de l'interface
+    INTERFACE_NAME="vif${HASH:0:3}_$i"
+    ip link add $INTERFACE_NAME type veth peer name eth$i@$INTERFACE_NAME
+    #On rajoute l'interface à la liste des interfaces du container
+    ARRAY_INTERFACES+=($INTERFACE_NAME)
+    
+    #On redemarre l'interface virtuelle
+    ip link set dev $INTERFACE_NAME down
+    ip link set dev $INTERFACE_NAME up
+
+    #On place l'une des extrémité de la paire veth dans le namespace du container
+    ip link set eth$i@$INTERFACE_NAME netns /proc/$PID/ns/net name eth$i
 done
 
-echo "J'ai fini de créer les interfaces chef"
 
 #Compte le nombre de bridges présents
 NOMBRE_BRIDGES=$(echo $BRIDGES | awk -F '[,]' '{print NF}')
 
+#On met le séparateur à "," pour délimiter les addresses ip et bridges
 IFS=","
 
 ARRAY_BRIDGES=()
@@ -121,20 +138,28 @@ for a in $ADDRS_IPV4; do
 done
 
 for (( i=0 ; i < ${#ARRAY_IPV4[*]} ; i++ )); do
-    #Creation de la veth
-    #ip link add dev $NOM_CONTAINER$i type veth peer name eth$i@$NOM_CONTAINER$i
-    ip link add dev vif1 type veth peer name eth0@vif1
-    #Ajout d'une des extrémités de la veth dans le namespace du container
-    #ip link set eth$i@$NOM_CONTAINER$i netns proc/$PID/ns/net name eth$i
-    ip link set eth0@vif1 netns proc/$PID/ns/net name eth0
-    #Attribution de l'adresse ip à l'interface du container
-    #ip netns exec proc/$PID/ns/net ip addr add ${ARRAY_IPV4[i]} dev eth$i
-    ip netns exec proc/$PID/ns/net ip addr add ${ARRAY_IPV4[i]} dev eth0
-    ip netns exec proc/$PID/ns/net ip link set dev eth0 down
-    ip netns exec proc/$PID/ns/net ip link set dev eth0 up
+    nsenter -t $PID -n ip a
+    
+    #Attribution de la i-ème adresse ip à l'interface i
+    nsenter -t $PID -n ip add ${ARRAY_IPV4[i]} dev eth$i
 
+    #On redemarre l'interface i dans le container
+    nsenter -t $PID -n ip link set dev eth$i down
+    nsenter -t $PID -n ip link set dev eth$i up
 done
 
 for (( i=0 ; i < ${#ARRAY_BRIDGES[*]} ; i++ )); do
-    ip link set $NOM_CONTAINER$i master ${ARRAY_BRIDGES[i]}
+    #Pour chaque interface, on la relie à son bridge associé
+    ip link set ${ARRAY_INTERFACES[i]} master ${ARRAY_BRIDGES[i]}
 done
+
+#Chaine de caractère contenant toutes les interfaces du container, séparées par ","
+
+STRING_INTERFACE=""
+for (( i=0 ; i < ${#ARRAY_INTERFACE[*]} ; i++)); do
+    STRING_INTERFACE="$STRING_INTERFACE,${ARRAY_INTERFACES[i]}"
+    #Exemple, à la fin on aura ",vif143,vif560"
+done
+
+#On supprime la première virgule exédentaire
+STRING_INTERFACE=$(echo $STRING_INTERFACE | sed -e 's/^.//')

@@ -9,4 +9,5 @@ if [[ -z "$NOM_BRIDGE" ]]; then
   echo "Il faut donner le nom du bridge Relancez la commande avec les bons arguments."
   exit
 fi
+
 ip link set $NOM_BRIDGE down
