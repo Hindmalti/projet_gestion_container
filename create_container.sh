@@ -1,6 +1,6 @@
 #!/bin/bash
+set -x
 
-set -x 
 while getopts i:c:b:r:a:p: o; do
     case $o in
         (i) NOM_IMAGE=$OPTARG;;
@@ -52,19 +52,11 @@ echo "proc /proc proc defaults 0 0" >> /mnt/baleine/$NOM_CONTAINER/etc/fstab
 echo "$PROGRAM" >> /mnt/baleine/$NOM_CONTAINER/etc/rc.local
 
 #On fait le unshare sur l'image passée en paramètre,
-#nohup unshare -p -f -m -n -u chroot /mnt/baleine/$NOM_CONTAINER "/bin/bash" -c "mount /proc" &
 
 nohup unshare -p -f -m -n -u chroot /mnt/baleine/$NOM_CONTAINER /bin/sh -c "mount /proc ; $PROGRAM ; while true ; do sleep 10 ; done" &
-
 PID=$!
 
-#Récupère tous les processus fils du unshare (donc ici le programme qu'on lance)
-#ps axo ppid,pid | grep "^ *$PID" | sed -e 's/.* //'
-
 echo "PID Unshare :$PID"
-
-
-#TODO : Gerer les noms des interfaces < x caractères 
 
 FILE=$NOM_CONTAINER.manifest
 date=$(date)
@@ -72,7 +64,7 @@ date=$(date)
 echo "nom_container:$NOM_CONTAINER" >> $FILE #nom du conteneur
 echo "nom_image:$NOM_IMAGE" >> $FILE #nom de son image
 echo "pid:$PID" >> $FILE #Son PID 
-echo "nom_bridge:$NOM_BRIDGE" >> $FILE #SON BRIDGE
+echo "nom_bridges:$BRIDGES" >> $FILE #SON BRIDGE
 echo "starting_time: $date" >> $FILE #starting time
 
 
@@ -102,11 +94,11 @@ fi
 
 ARRAY_INTERFACES=()
 
-for i in $(seq 1 $NOMBRE_INTERFACES); do
+for ((i = 0 ; i<$NOMBRE_INTERFACES ; i++)); do
     #Creation d'un hash du nom du container pour créer les interfaces
     HASH=$(sha1sum <<< $NOM_CONTAINER)
     #On prend les trois premiers caractères du hash, succédé de l'index de l'interface
-    INTERFACE_NAME="vif${HASH:0:3}_$i"
+    INTERFACE_NAME="vif${HASH:0:4}_$i"
     ip link add $INTERFACE_NAME type veth peer name eth$i@$INTERFACE_NAME
     #On rajoute l'interface à la liste des interfaces du container
     ARRAY_INTERFACES+=($INTERFACE_NAME)
@@ -119,7 +111,6 @@ for i in $(seq 1 $NOMBRE_INTERFACES); do
     ip link set eth$i@$INTERFACE_NAME netns /proc/$PID/ns/net name eth$i
 done
 
-
 #Compte le nombre de bridges présents
 NOMBRE_BRIDGES=$(echo $BRIDGES | awk -F '[,]' '{print NF}')
 
@@ -130,19 +121,19 @@ ARRAY_BRIDGES=()
 ARRAY_IPV4=()
 
 for b in $BRIDGES; do
-    ARRAY_BRIDGES+=(b)    
+    echo "Un bridge: $b"
+    ARRAY_BRIDGES+=($b)    
 done
 
 for a in $ADDRS_IPV4; do
-    ARRAY_IPV4+=(a)
+    echo "Une addr: $a"
+    ARRAY_IPV4+=($a)
 done
 
 for (( i=0 ; i < ${#ARRAY_IPV4[*]} ; i++ )); do
     nsenter -t $PID -n ip a
-    
     #Attribution de la i-ème adresse ip à l'interface i
-    nsenter -t $PID -n ip add ${ARRAY_IPV4[i]} dev eth$i
-
+    nsenter -t $PID -n ip a add ${ARRAY_IPV4[i]} dev eth$i
     #On redemarre l'interface i dans le container
     nsenter -t $PID -n ip link set dev eth$i down
     nsenter -t $PID -n ip link set dev eth$i up
@@ -150,16 +141,18 @@ done
 
 for (( i=0 ; i < ${#ARRAY_BRIDGES[*]} ; i++ )); do
     #Pour chaque interface, on la relie à son bridge associé
+    echo "Nom bridge :${ARRAY_BRIDGES[i]}"
     ip link set ${ARRAY_INTERFACES[i]} master ${ARRAY_BRIDGES[i]}
 done
 
 #Chaine de caractère contenant toutes les interfaces du container, séparées par ","
 
 STRING_INTERFACE=""
-for (( i=0 ; i < ${#ARRAY_INTERFACE[*]} ; i++)); do
+for (( i=0 ; i < ${#ARRAY_INTERFACES[*]} ; i++)); do
     STRING_INTERFACE="$STRING_INTERFACE,${ARRAY_INTERFACES[i]}"
     #Exemple, à la fin on aura ",vif143,vif560"
 done
 
 #On supprime la première virgule exédentaire
 STRING_INTERFACE=$(echo $STRING_INTERFACE | sed -e 's/^.//')
+echo "interfaces:$STRING_INTERFACE" >> $FILE

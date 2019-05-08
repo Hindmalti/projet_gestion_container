@@ -15,7 +15,8 @@ if [ "$SIZE" == "" ] || [ "$SIZE" -lt 0 ] || [ "$SIZE" -gt 10240 ]; then
     SIZE=10240
 fi
 
-echo "Le size est de $SIZE"
+echo "Création d'une image de taille $SIZE"
+
 mkdir -p $PATH_BALEINE/images
 
 if [[ -z $REPERTOIRE ]]; then

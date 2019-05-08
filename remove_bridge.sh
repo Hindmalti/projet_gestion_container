@@ -1,5 +1,4 @@
 #!/bin/bash
-NAME_BRIDGE_TO_REMOVE=$1;
 while getopts b: o; do
     case $o in
         (b) NAME_BRIDGE_TO_REMOVE=$OPTARG;;   

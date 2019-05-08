@@ -2,6 +2,8 @@
 
 for eachfile in $PATH_MANIFEST/images/*.manifest
 do 
+	#Test si des fichiers sont présents
+	test -f "$eachfile" || continue
 	NOM_IMAGE=$(grep nom_image $eachfile | cut -d ':' -f2)
 	TAILLE=$(grep taille $eachfile | cut -d ':' -f2)
 	CHEMIN=$(grep chemin $eachfile | cut -d ':' -f2)
