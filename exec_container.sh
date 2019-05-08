@@ -1,8 +1,8 @@
 #!/bin/bash
 
-while getopts e: o; do
+while getopts c: o; do
   case $o in
-    (e) $NOM_CONTAINER=$OPTARG;;
+    (c) $NOM_CONTAINER=$OPTARG;;
   esac
 done
 

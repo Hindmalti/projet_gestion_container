@@ -1,6 +1,9 @@
 #!/bin/bash
-NAME_CONTAINER_TO_REMOVE=$1;
-
+while getopts c: o; do
+    case $o in
+        (c) NAME_CONTAINER_TO_REMOVE=$OPTARG;;   
+    esac
+done
 #vérification que l'utilisateur donne bien un nom à l'CONTAINER
 if [[ -z "$NAME_CONTAINER_TO_REMOVE" ]]; then 
   echo "Il faut donner le NAME du conteneur! Relancez la commande avec les bons arguments."

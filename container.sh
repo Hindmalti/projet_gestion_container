@@ -1,4 +1,30 @@
 #!/bin/bash
+if [ $# -lt 1 ]; then
+    printf "Nom \n"
+    printf "\t \t Container\n"
+    printf "SYNOPSIS \n"
+    printf "\t \t baleine container <COMMANDES> [arguments]\n"
+    printf "Description: \n \n"
+    printf "La commande 'Container' permet de créer des conteneurs, en supprimer, lister les conteneurs existants (Son nom, son image, son bridge, son PID, son starting time ) " 
+    printf "Les commandes sont :\n \n"
+    printf "\t %-10s %-10s \n" "<create>"  "crée un conteneur."
+    printf "\t \t [-i], [NOM_IMAGE]\n \n" 
+    printf "\t \t [-c], [NOM_CONTAINER]\n \n"
+    printf "\t \t [-b], [NOM_BRIDGE]\n \n"
+    printf "\t \t [-r], [REPERTOIRE]\n \n"
+    printf "\t \t [-a], [ADDRE_IPV4]\n \n"
+    printf "\t \t [-p], [NOM_PROGRAMME]\n \n"
+    printf " \t %-10s %-10s \n" "<list> "  "liste les conteneurs existants ainsi que leurs manifestes."
+    printf " \t %-10s %-10s \n" "<remove> "  "Supprime le conteneur donné en argument."
+    printf "\t \t [-c], --container [NOM_CONTAINER]\n \n" 
+    printf "\t \t %-10s %-10s \n" "<exec> "  "Exécute au lancement du conteneur un bash."
+    printf "\t \t [-c], --container [NOM_CONTAINER]\n \n" 
+    printf "\t %-10s %-10s \n" "<stop> "  "Stop le conteneur donné en argument."
+    printf "\t \t [-c], --container [NOM_CONTAINER]\n \n" 
+    printf " \t %-10s %-10s \n" "<restart> "  "redémarre le conteneur donné en argument."
+    printf "\t \t [-c], --container [NOM_CONTAINER]\n \n" 
+    printf "Utilisez baleine <commande> help pour plus d'informations à propos d'une commande.\n"
+fi
 
 case $1 in
 

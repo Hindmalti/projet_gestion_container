@@ -69,7 +69,7 @@ echo "PID Unshare :$PID"
 FILE=$NOM_CONTAINER.manifest
 date=$(date)
 
-echo "nom_container:$NOM_CONTAINER" >> $FILE #nom de son image
+echo "nom_container:$NOM_CONTAINER" >> $FILE #nom du conteneur
 echo "nom_image:$NOM_IMAGE" >> $FILE #nom de son image
 echo "pid:$PID" >> $FILE #Son PID 
 echo "nom_bridge:$NOM_BRIDGE" >> $FILE #SON BRIDGE

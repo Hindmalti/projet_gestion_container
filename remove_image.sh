@@ -1,6 +1,9 @@
 #!/bin/bash
-NAME_IMAGE_TO_REMOVE=$1;
-
+while getopts i: o; do
+    case $o in
+        (i) NAME_IMAGE_TO_REMOVE=$OPTARG;;   
+    esac
+done
 #vérification que l'utilisateur donne bien un nom à l'image
 if [[ -z "$NAME_IMAGE_TO_REMOVE" ]]; then 
   echo "Il faut donner le nom de l'image ! Relancez la commande avec les bons arguments."
