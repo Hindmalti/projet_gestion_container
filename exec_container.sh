@@ -2,7 +2,7 @@
 
 while getopts c: o; do
   case $o in
-    (c) $NOM_CONTAINER=$OPTARG;;
+    (c) NOM_CONTAINER=$OPTARG;;
   esac
 done
 

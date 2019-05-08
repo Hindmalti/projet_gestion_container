@@ -59,7 +59,7 @@ PID=$!
 echo "PID Unshare :$PID"
 
 FILE=$NOM_CONTAINER.manifest
-date=$(date)
+date=$(date +"%Y-%m-%d-%Hh-%Mm-%Ss")
 
 echo "nom_container:$NOM_CONTAINER" >> $FILE #nom du conteneur
 echo "nom_image:$NOM_IMAGE" >> $FILE #nom de son image
@@ -154,5 +154,6 @@ for (( i=0 ; i < ${#ARRAY_INTERFACES[*]} ; i++)); do
 done
 
 #On supprime la première virgule exédentaire
-STRING_INTERFACE=$(echo $STRING_INTERFACE | sed -e 's/^.//')
+
+STRING_INTERFACE=${STRING_INTERFACE:1}
 echo "interfaces:$STRING_INTERFACE" >> $FILE

@@ -8,10 +8,12 @@ do
 	NOM_IMAGE=$(grep nom_image $eachfile | cut -d ':' -f2)
 	PID=$(grep pid $eachfile | cut -d ':' -f2)
 	TIME=$(grep starting_time $eachfile | cut -d':' -f2)
+	INTERFACES=$(grep interfaces $eachfile | cut -d':' -f2)
 	echo "----------------------"
-	echo "Nom container $NOM_CONTAINER"
+	echo "Nom container: $NOM_CONTAINER"
 	echo "Nom image: $NOM_IMAGE"
 	echo "PID: $PID"
-	echo "Startint time: $TIME"
+	echo "Starting time: $TIME"
+	echo "Interfaces: $INTERFACES"
 	echo "----------------------"
 done
