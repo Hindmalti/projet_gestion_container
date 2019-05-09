@@ -1,11 +1,11 @@
 #!/bin/bash
 if [ $# -lt 1 ]; then
-    printf "Nom \n"
-    printf "\t \t Image\n"
+    printf "NOM \n"
+    printf "\t Image\n"
     printf "SYNOPSIS \n"
-    printf "\t \t baleine image <COMMANDES> [arguments]\n"
+    printf "\t baleine image <COMMANDES> [arguments]\n"
     printf "Description: \n \n"
-    printf "La commande 'image' permet de créer une image, en supprimer, lister les images existantes (Son nom, sa taille, son chemin ) " 
+    printf "\t La commande 'image' permet de créer une image, en supprimer, lister les images existantes (Son nom, sa taille, son chemin ) \n" 
     printf "Les commandes sont :\n \n"
     printf "\t %-10s %-10s \n" "<create>"  "crée une image."
     printf "\t \t [-i], [NOM_IMAGE]\n \n" 
