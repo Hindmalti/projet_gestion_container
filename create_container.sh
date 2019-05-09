@@ -119,12 +119,10 @@ ARRAY_BRIDGES=()
 ARRAY_IPV4=()
 
 for b in $BRIDGES; do
-    echo "Un bridge: $b"
     ARRAY_BRIDGES+=($b)    
 done
 
 for a in $ADDRS_IPV4; do
-    echo "Une addr: $a"
     ARRAY_IPV4+=($a)
 done
 
@@ -138,7 +136,6 @@ done
 
 for (( i=0 ; i < ${#ARRAY_BRIDGES[*]} ; i++ )); do
     #Pour chaque interface, on la relie à son bridge associé
-    echo "Nom bridge :${ARRAY_BRIDGES[i]}"
     ip link set ${ARRAY_INTERFACES[i]} master ${ARRAY_BRIDGES[i]}
 done
 
