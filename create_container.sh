@@ -129,7 +129,6 @@ for a in $ADDRS_IPV4; do
 done
 
 for (( i=0 ; i < ${#ARRAY_IPV4[*]} ; i++ )); do
-    nsenter -t $PID -n ip a
     #Attribution de la i-ème adresse ip à l'interface i
     nsenter -t $PID -n ip a add ${ARRAY_IPV4[i]} dev eth$i
     #On redemarre l'interface i dans le container
@@ -142,6 +141,9 @@ for (( i=0 ; i < ${#ARRAY_BRIDGES[*]} ; i++ )); do
     echo "Nom bridge :${ARRAY_BRIDGES[i]}"
     ip link set ${ARRAY_INTERFACES[i]} master ${ARRAY_BRIDGES[i]}
 done
+
+echo "Configuration réseau au sein du conteneur"
+nsenter -t $PID -n ip a
 
 #Chaine de caractère contenant toutes les interfaces du container, séparées par ","
 
