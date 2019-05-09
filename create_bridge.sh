@@ -14,12 +14,15 @@ if [[ -z "$NOM_BRIDGE" ]]; then
   exit
 fi
 #création du bridge
+echo "Création du bridge $NOM_BRIDGE"
 ip link add $NOM_BRIDGE type bridge
 
 #attribution d'une adresse ip au bridge
+echo "Attribution de l'adresse ip $ADDR_IPV4 à $NOM_BRIDGE"
 ip a add dev $NOM_BRIDGE $ADDR_IPV4
 
 #demarrage du bridge
+echo "Demarrage de $NOM_BRIDGE"
 ip link set $NOM_BRIDGE down
 ip link set $NOM_BRIDGE up
 

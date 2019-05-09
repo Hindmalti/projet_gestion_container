@@ -38,7 +38,4 @@ case "$1" in
     "help")
         bash help.sh
     ;;
-    "test")
-        bash test.sh "${@:2}"
-    ;;
 esac

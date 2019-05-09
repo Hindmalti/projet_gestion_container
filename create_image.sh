@@ -59,7 +59,7 @@ if [[ $PROXY != "" ]]; then
 fi
 
 #Création de l'arborescence Debian avec debootstrap
-echo "Je vais faire le debootstrap"
+echo "Debut du debootstrap"
 mkdir -p /mnt/baleine/$NOM_IMAGE
 mount -t ext4 -o loop $REPERTOIRE/$NOM_IMAGE /mnt/baleine/$NOM_IMAGE 
 debootstrap --include=apache2,vim,nano  stable /mnt/baleine/$NOM_IMAGE

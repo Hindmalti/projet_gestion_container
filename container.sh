@@ -40,9 +40,6 @@ case $1 in
     "remove")
         bash remove_container.sh "${@:2}"
         ;;
-    "restart")
-        bash restart_container.sh "${@:2}"
-        ;;  
     "exec")
         bash exec_container.sh "${@:2}"
         ;;        
