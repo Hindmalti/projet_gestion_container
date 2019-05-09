@@ -8,7 +8,7 @@ Il est possible de créer une image, lui attribuer un nom, choisir sa taille et 
 
 De plus, vous avez la possibilité de créer un bridge, lui attribuer un nom et lui associer une adresse IPV4.
 
-> Pour connaître toutes les commandes possibles, un utilitaire help est mis à votre disposition grâce à la commande : <baleine.sh help>
+> Pour connaître toutes les commandes possibles, un utilitaire help est mis à votre disposition grâce à la commande : `baleine.sh help`
 
 # Structure du code
 
