@@ -1,5 +1,4 @@
 #!/bin/bash
-set -x
 while getopts c: o; do
     case $o in
         (c) NAME_CONTAINER_TO_REMOVE=$OPTARG;;   

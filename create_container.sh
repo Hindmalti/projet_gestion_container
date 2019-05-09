@@ -1,6 +1,4 @@
 #!/bin/bash
-set -x
-
 while getopts i:c:b:r:a:p: o; do
     case $o in
         (i) NOM_IMAGE=$OPTARG;;
